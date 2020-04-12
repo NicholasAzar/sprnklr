@@ -1,0 +1,12 @@
+# Todo list for Sprnkler
+
+** Broad strokes
+* DONE Setup test accounts with pictures
+* DONE List all photos in one account
+* TODO Storage of multiple accounts
+* TODO Transfer files from one account to another
+
+** Access Handling
+* TODO real caching for refresh tokens
+* TODO Interface for different backend systems (just googs for now)
+

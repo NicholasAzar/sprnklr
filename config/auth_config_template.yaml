@@ -1,0 +1,13 @@
+# A redacted copy of auth_config.yaml for vcs
+google_auth:
+  auth_url: "https://accounts.google.com/o/oauth2/v2/auth"
+  response_type: "code"
+  scope: "openid email https://www.googleapis.com/auth/photoslibrary"
+  access_type: "offline"
+  token_url: "https://www.googleapis.com/oauth2/v4/token"
+  redirect_uri: "http://localhost:5000"
+  grant_type: "authorization_code"
+  client_id: "[REDACTED]"
+  client_secret: "[REDACTED]"
+accounts:
+  - "[REDACTED]"
