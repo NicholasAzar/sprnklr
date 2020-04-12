@@ -1,11 +1,11 @@
 import yaml
-from auth_handler import auth_handler
 from photo_handler import PhotoHandler
+from auth.authr import AuthrFactory
+from globals import AccountType
 
-with open('config/auth_config.yaml', 'r') as auth_config_file:
-    auth_config = yaml.load(auth_config_file, Loader=yaml.FullLoader)
+authr = AuthrFactory.get_authr('sprnkleruser1@gmail.com', AccountType.GOOGLE)
 
-access_token = auth_handler(auth_config['google_auth']).get_token(auth_config['accounts'][0])
+access_token = authr.get_token()
 print('In main, with token: ' + access_token)
 
 with open('config/photo_config.yaml', 'r') as photo_config_file:

@@ -5,21 +5,37 @@ import webbrowser
 import requests
 import json
 from flask import Flask, request, Response
+from globals import AccountType
 
-class auth_handler(object):
-    def __init__(self, auth_config:dict):
-        self.config = auth_config
-        self.flask_app = Flask(__name__)
-        self.flask_app.add_url_rule('/', '/', self)
-        self.auth_code = ""
+
+class Authr(object):
+    with open('config/auth_config.yaml', 'r') as auth_config_file:
+        auth_config = yaml.load(auth_config_file, Loader=yaml.FullLoader)
+        print("Initialized auth config")
+    
+    def __init__(self, user_id:str, account_type:AccountType):
+        self.config = Authr.auth_config
+        self.user_id = user_id
+        self.account_type = account_type
+        print("Authr init")
 
     def get_token(self, user_email:str) -> str:
-        if os.path.exists('./' + user_email + ".refresh"):
-            with open('./' + user_email + ".refresh") as refresh_file:
-                return self._get_token_from_refresh(user_email, refresh_file.read())
+        pass
+
+
+class GoogleAuthr(Authr):
+    def __init__(self, user_id, account_type):
+        super().__init__(user_id, account_type)
+        self.config = self.config['google_auth']
+        print("GoogleAuthr init")
+
+    def get_token(self) -> str:
+        if os.path.exists('./' + self.user_id + ".refresh"):
+            with open('./' + self.user_id + ".refresh") as refresh_file:
+                return self._get_token_from_refresh(self.user_id, refresh_file.read())
         else:
-            return self._get_new_token(user_email)
-                
+            return self._get_new_token(self.user_id)
+
     def _get_token_from_refresh(self, user_email:str, refresh_token:str) -> str:
         print("Found refresh, trying to use it.")
         request_body = {
@@ -38,11 +54,13 @@ class auth_handler(object):
         return None
 
     def _get_new_token(self, user_email:str):
+        flask_app = Flask(__name__)
+        flask_app.add_url_rule('/', '/', self)
         webbrowser.open_new_tab(self._build_auth_code_url(user_email))
-        self.flask_app.run()
+        flask_app.run()
         print("Back to obj with auth code: " + self.auth_code)
         return self._get_new_token_from_code(user_email)
-    
+
     def _get_new_token_from_code(self, user_email:str):
         request_body = {
             'client_id': self.config['client_id'],
@@ -76,7 +94,13 @@ class auth_handler(object):
         if shutdown_hook is not None:
             shutdown_hook()
         return Response(status=200, headers={})
-    
+
     def _save_refresh_token(self, user_email:str, refresh_token:str) -> None:
         with open('./' + user_email + '.refresh', 'w') as refresh_file:
             refresh_file.write(refresh_token)
+
+class AuthrFactory(object):
+    @staticmethod
+    def get_authr(user_id:str, account_type:AccountType) -> Authr:
+        if account_type == AccountType.GOOGLE:
+            return GoogleAuthr(user_id, account_type)
