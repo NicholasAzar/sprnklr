@@ -1,6 +1,16 @@
 {
     "python.pythonPath": "C:\\Program Files\\Python36\\python.exe",
     "cSpell.words": [
-        "authr"
-    ]
+        "auth",
+        "authr",
+        "cachr"
+    ],
+    "sqltools.connections": [
+        {
+            "database": "${workspaceFolder}\\auth_cache.db",
+            "dialect": "SQLite",
+            "name": "auth_cache"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
 }
