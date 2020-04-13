@@ -4,4 +4,5 @@ AppLoggerName = "sprnkler"
 
 class AccountType(Enum):
     GOOGLE = "GOOGLE"
+    AUTH0 = "AUTH0"
     

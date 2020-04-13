@@ -3,3 +3,4 @@ config/photo_config.yaml
 __pycache__/
 **/*.refresh
 **/*.db
+.VSCodeCounter/
