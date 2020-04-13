@@ -1,51 +1,67 @@
+import logging
 import os
 import yaml
 import base64
 import webbrowser
 import requests
 import json
+from datetime import datetime, timedelta
 from flask import Flask, request, Response
-from globals import AccountType
-from auth.cachr import AuthCachr
+from globals import AccountType, AppLoggerName
+from auth.cacher import AuthCacher
 
+logger = logging.getLogger(AppLoggerName)
 
 class Authr(object):
     with open('config/auth_config.yaml', 'r') as auth_config_file:
         auth_config = yaml.load(auth_config_file, Loader=yaml.FullLoader)
-        print("Initialized auth config")
-    cachr = AuthCachr()
+        logger.debug("Initialized auth config")
+    cacher = AuthCacher()
     
     def __init__(self, user_id:str, account_type:AccountType):
         self.config = Authr.auth_config
         self.user_id = user_id
         self.account_type = account_type
-        print("Authr init")
+        logger.debug("Authr init")
 
-    def get_token(self) -> str:
-        pass
+    def get_access_token(self) -> str:
+        pass # interface
     
-    def _get_refresh_token_cached(self):
-        return Authr.cachr.get_refresh_token(self.user_id, self.account_type)
+    def _get_tokens_from_cache(self) -> dict:
+        logger.debug("Checking cache for tokens")
+        access_token, expiry_dttm, refresh_token = Authr.cacher.get_tokens(self.user_id, self.account_type)
+        if expiry_dttm is not None and access_token is not None and (datetime.now() + timedelta(seconds=30)) < expiry_dttm:
+            logger.info("Found non-expired access token in cache")
+            return access_token, None
+        elif refresh_token is not None:
+            logger.info("Found expired access token, returning refresh")
+            return None, refresh_token
+        logger.info("No valid tokens found in cache")
+        return None, None
+
     
-    def _persist_refresh_token(self, refresh_token:str) -> None:
-        Authr.cachr.persist_refresh_token(self.user_id, self.account_type, refresh_token)
+    def _persist_tokens(self, access_token:str, expiry_dttm:datetime, refresh_token:str) -> None:
+        Authr.cacher.persist_tokens(self.user_id, self.account_type, access_token, expiry_dttm, refresh_token)
 
 
 class GoogleAuthr(Authr):
     def __init__(self, user_id, account_type):
         super().__init__(user_id, account_type)
         self.config = self.config['google_auth']
-        print("GoogleAuthr init")
+        logger.debug("GoogleAuthr init")
 
-    def get_token(self) -> str:
-        cached_refresh_token = self._get_refresh_token_cached()
-        if cached_refresh_token is not None:
-            return self._get_token_from_refresh(cached_refresh_token)
-        else:
-            return self._get_new_token()
+    def get_access_token(self) -> str:
+        access_token, refresh_token = self._get_tokens_from_cache()
+        if access_token is not None:
+            return access_token
+        elif refresh_token is not None:
+            refresh_result = self._get_token_from_refresh(refresh_token)
+            if refresh_result is not None: # if refresh fails for some reason, fallback to get new token.
+                return refresh_result
+        return self._get_new_token()
 
     def _get_token_from_refresh(self, refresh_token:str) -> str:
-        print("Found refresh, trying to use it.")
+        logger.debug("Found refresh, trying to use it.")
         request_body = {
             'client_id': self.config['client_id'],
             'client_secret': self.config['client_secret'],
@@ -54,11 +70,13 @@ class GoogleAuthr(Authr):
         }
         response = requests.post(url=self.config['token_url'], data=request_body)
         if response.status_code == 200:
-            print('Success: ' + response.text)
+            logger.debug('Get token from refresh success: ' + response.text)
             result = json.loads(response.text)
+            expiry_dttm = datetime.now() + timedelta(seconds=result['expires_in'])
+            self._persist_tokens(result['access_token'], expiry_dttm, refresh_token) # should I use the new one?
             return result['access_token']
         else:
-            print('Error getting access token using refresh: ' + response.content)
+            logger.warn('Error getting access token using refresh: ' + response.content)
         return None
 
     def _get_new_token(self):
@@ -66,7 +84,7 @@ class GoogleAuthr(Authr):
         flask_app.add_url_rule('/', '/', self)
         webbrowser.open_new_tab(self._build_auth_code_url())
         flask_app.run()
-        print("Back to obj with auth code: " + self.auth_code)
+        logger.debug("Back to obj with auth code: " + self.auth_code)
         return self._get_new_token_from_code()
 
     def _get_new_token_from_code(self):
@@ -77,16 +95,16 @@ class GoogleAuthr(Authr):
             'redirect_uri': self.config['redirect_uri'],
             'grant_type': self.config['grant_type']
         }
-        print("Sending request to " + self.config['token_url'] + " with data: " + str(request_body))
+        logger.debug("Sending request to " + self.config['token_url'] + " with data: " + str(request_body))
         response = requests.post(url=self.config['token_url'], data=request_body)
         if response.status_code == 200:
-            print("Success: " + response.text)
+            logger.debug("Get new token success: " + response.text)
             json_data = json.loads(response.text)
-            self._persist_refresh_token(json_data['refresh_token'])
-            # Or do i need "id_token" here?
+            expiry_dttm = datetime.now() + timedelta(seconds=json_data['expires_in'])
+            self._persist_tokens(json_data['access_token'], expiry_dttm, json_data['refresh_token'])
             return json_data['access_token']
         else:
-            print("Got token error" + str(response.content))
+            logger.error("Failed to get new token: " + str(response.content))
 
     def _build_auth_code_url(self):
         auth_url_format = "{}?client_id={}&response_type={}&scope={}&access_type={}&redirect_uri={}&login_hint={}"
@@ -95,7 +113,7 @@ class GoogleAuthr(Authr):
     # Receive auth code
     def __call__(self):
         self.auth_code = request.args.get('code')
-        print('Got auth code: {}'.format(str(self.auth_code)))
+        logger.debug('Got auth code: {}'.format(str(self.auth_code)))
 
         # TODO(@nzar): implement error param handler
         shutdown_hook = request.environ.get('werkzeug.server.shutdown')
@@ -103,9 +121,6 @@ class GoogleAuthr(Authr):
             shutdown_hook()
         return Response(status=200, headers={})
 
-    # def _save_refresh_token(self, user_email:str, refresh_token:str) -> None:
-    #     with open('./' + user_email + '.refresh', 'w') as refresh_file:
-    #         refresh_file.write(refresh_token)
 
 class AuthrFactory(object):
     @staticmethod
