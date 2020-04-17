@@ -8,7 +8,7 @@
             "name": "sprnklr entry",
             "type": "python",
             "request": "launch",
-            "program": "main.py",
+            "program": "server.py",
             "console": "integratedTerminal"
         }
     ]

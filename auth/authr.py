@@ -5,7 +5,7 @@ import base64
 import json
 from datetime import datetime, timedelta
 from globals import AccountType, AppLoggerName
-from auth.cacher import AuthCacher
+from auth.auth_store import AuthStore
 
 logger = logging.getLogger(AppLoggerName)
 
@@ -13,7 +13,7 @@ class Authr(object):
     with open('config/auth_config.yaml', 'r') as auth_config_file:
         auth_config = yaml.load(auth_config_file, Loader=yaml.FullLoader)
         logger.debug("Initialized auth config")
-    cacher = AuthCacher()
+    auth_store = AuthStore()
     
     def __init__(self, account_type: AccountType):
         self.config = Authr.auth_config
@@ -42,7 +42,7 @@ class Authr(object):
     
     def _get_tokens_from_cache(self, user_id:str) -> dict:
         logger.debug("Checking cache for tokens")
-        access_token, expiry_dttm, refresh_token = Authr.cacher.get_tokens(user_id, self.account_type)
+        access_token, expiry_dttm, refresh_token = Authr.auth_store.get_tokens(user_id, self.account_type)
         if expiry_dttm is not None and access_token is not None and (datetime.now() + timedelta(seconds=30)) < expiry_dttm:
             logger.info("Found non-expired access token in cache")
             return access_token, None
@@ -54,7 +54,7 @@ class Authr(object):
 
     
     def _persist_tokens(self, user_id:str, access_token:str, expiry_dttm:datetime, refresh_token:str) -> None:
-        Authr.cacher.persist_tokens(user_id, self.account_type, access_token, expiry_dttm, refresh_token)
+        Authr.auth_store.persist_tokens(user_id, self.account_type, access_token, expiry_dttm, refresh_token)
     
     def _get_field_from_id_token(self, id_token:str, field_name:str) -> str:
         id_token_body = id_token.split('.')[1]

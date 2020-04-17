@@ -7,7 +7,7 @@ logger = logging.getLogger(AppLoggerName)
 
 class PhotoHandler(object):
 
-    def __init__(self, config:dict, src_access_token:str, dest_access_token:str):
+    def __init__(self, config:dict, src_access_token:str):
         self.config = config
         self.src_access_token = src_access_token
     

@@ -1,3 +1,5 @@
 pyyaml
 requests
 flask
+authlib
+jsonify

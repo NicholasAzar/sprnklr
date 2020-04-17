@@ -4,25 +4,41 @@ import yaml
 import webbrowser
 import json
 from datetime import datetime, timedelta
-from auth.cacher import AuthCacher
 from auth.authr import Authr
 from flask import Flask, request, Response
 from globals import AccountType, AppLoggerName
 
 logger = logging.getLogger(AppLoggerName)
 
+
 class Auth0Authr(Authr):
+    auth0_flask_app = Flask(__name__)
+
     def __init__(self):
         super().__init__(AccountType.AUTH0)
         self.config = Auth0Authr.auth_config['auth0']
         logger.debug("Auth0Authr")
+    
 
     def _get_new_token(self, user_id:str = None) -> str:
         logger.debug("Getting new Auth0 token")
-        flask_app = Flask(__name__)
-        flask_app.add_url_rule('/', '/', self)
+        # Receive auth code
+        @Auth0Authr.auth0_flask_app.route('/')
+        def receive_auth_code():
+            self.auth_code = request.args.get('code')
+            logger.debug('Got auth code: {}'.format(str(self.auth_code)))
+
+            # TODO(@nzar): implement error param handler
+            shutdown_hook = request.environ.get('werkzeug.server.shutdown')
+            if shutdown_hook is not None:
+                shutdown_hook()
+                logger.debug("Called shutdown hook on auth0 authr")
+            else:
+                logger.error("Failed to call shutdown hook on auth0 authr")
+            return Response(status=200, headers={})
+        # flask_app.add_url_rule('/', '/', self)
         webbrowser.open_new_tab(self._build_auth_code_url())
-        flask_app.run()
+        Auth0Authr.auth0_flask_app.run()
         logger.debug("Back to obj with auth code: " + self.auth_code)
         return self._get_new_token_from_code()
 
@@ -57,16 +73,6 @@ class Auth0Authr(Authr):
         logger.debug("Auth code url: " + auth_url)
         return auth_url
     
-    # Receive auth code
-    def __call__(self):
-        self.auth_code = request.args.get('code')
-        logger.debug('Got auth code: {}'.format(str(self.auth_code)))
-
-        # TODO(@nzar): implement error param handler
-        shutdown_hook = request.environ.get('werkzeug.server.shutdown')
-        if shutdown_hook is not None:
-            shutdown_hook()
-        return Response(status=200, headers={})
 
 
 

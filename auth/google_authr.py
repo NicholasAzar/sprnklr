@@ -11,6 +11,7 @@ from auth.authr import Authr
 logger = logging.getLogger(AppLoggerName)
 
 class GoogleAuthr(Authr):
+    flask_app = Flask(__name__)
     def __init__(self):
         super().__init__(AccountType.GOOGLE)
         self.config = self.config['google']
@@ -37,10 +38,23 @@ class GoogleAuthr(Authr):
         return (None, None, None)
 
     def _get_new_token(self, user_id:str = None):
-        flask_app = Flask(__name__)
-        flask_app.add_url_rule('/', '/', self)
+        logger.debug("Getting new google auth token")
+        # Receive auth code
+        @GoogleAuthr.flask_app.route('/')
+        def receive_auth_token():
+            self.auth_code = request.args.get('code')
+            logger.debug('Got auth code: {}'.format(str(self.auth_code)))
+
+            # TODO(@nzar): implement error param handler
+            shutdown_hook = request.environ.get('werkzeug.server.shutdown')
+            if shutdown_hook is not None:
+                shutdown_hook()
+                logger.debug("Shutdown hook called on google authr auth code listener")
+            else:
+                logger.error("Failed to shutdown google authr auth code listener")
+            return Response(status=200, headers={})
         webbrowser.open_new_tab(self._build_auth_code_url(user_id=user_id))
-        flask_app.run()
+        GoogleAuthr.flask_app.run()
         logger.debug("Back to obj with auth code: " + self.auth_code)
         return self._get_new_token_from_code()
 
@@ -77,14 +91,3 @@ class GoogleAuthr(Authr):
         if user_id is not None:
             auth_url += "&login_hint=" + user_id
         return auth_url
-
-    # Receive auth code
-    def __call__(self):
-        self.auth_code = request.args.get('code')
-        logger.debug('Got auth code: {}'.format(str(self.auth_code)))
-
-        # TODO(@nzar): implement error param handler
-        shutdown_hook = request.environ.get('werkzeug.server.shutdown')
-        if shutdown_hook is not None:
-            shutdown_hook()
-        return Response(status=200, headers={})

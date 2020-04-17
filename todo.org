@@ -1,14 +1,23 @@
 # Todo list for Sprnkler
 
-** Broad strokes
+** General 
 * DONE Setup test accounts with pictures
 * DONE List all photos in one account
-* DONE Login with prime account (Auth0)
-* TODO Define sprnklr prime account to associate to a set of remote accounts -> auth0
+* DONE Login with sprnklr account (Auth0)
+* TODO Define sprnklr account to associate to a set of remote accounts
 * TODO Storage of multiple accounts
-* TODO Transfer files from one account to another
+* TODO Split client and server (web?)
+
+** server
+* TODO Server 
+
+** client
+* TODO Client sprnklr login
+* TODO Client sprnklr add account
+* TODO Client sprnklr show photos
+
 
 ** Access Handling
 * DONE real caching for refresh tokens
 * TODO Interface for different backend systems (just googs for now)
-
+* TODO cleanup sprnklr account def

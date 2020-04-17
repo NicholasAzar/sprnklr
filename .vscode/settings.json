@@ -1,10 +1,14 @@
 {
     "python.pythonPath": "C:\\Program Files\\Python36\\python.exe",
     "cSpell.words": [
+        "alloc",
         "auth",
         "authr",
         "cacher",
-        "cachr"
+        "cachr",
+        "id",
+        "percentage",
+        "sprnklr"
     ],
     "sqltools.connections": [
         {
@@ -13,5 +17,6 @@
             "name": "auth_cache"
         }
     ],
-    "sqltools.useNodeRuntime": true
+    "sqltools.useNodeRuntime": true,
+    "VSCodeCounter.showInStatusBar": false
 }
