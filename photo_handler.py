@@ -2,6 +2,7 @@ import logging
 import requests
 import json
 from globals import AppLoggerName
+from datetime import datetime
 
 logger = logging.getLogger(AppLoggerName)
 
@@ -14,6 +15,7 @@ class PhotoHandler(object):
     def list_photos_in_source(self):
         logger.info("Listing photos from source")
         next_page_token = None
+        photos = []
         while True:
             curr_url = self.config['list_photos_url']
             if next_page_token is not None:
@@ -23,6 +25,7 @@ class PhotoHandler(object):
             if page_response.status_code == 200:
                 page_data = json.loads(page_response.text)
                 logger.debug('Photos: ' + str(page_data['mediaItems']))
+                photos.extend(page_data['mediaItems'])
                 
                 if 'nextPageToken' in page_data:
                     next_page_token = page_data['nextPageToken']
@@ -30,10 +33,4 @@ class PhotoHandler(object):
                     break
             else:
                 logger.error('Failed to get page of photos: ' + page_response.content)
-    
-    def list_photos_in_dest(self):
-        pass
-
-    def copy_photo_to_dest(self):
-        pass
-    
+        return photos

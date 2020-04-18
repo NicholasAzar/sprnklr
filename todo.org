@@ -9,15 +9,15 @@
 * TODO Split client and server (web?)
 
 ** server
-* TODO Server 
+* DONE Server 
 
 ** client
-* TODO Client sprnklr login
-* TODO Client sprnklr add account
-* TODO Client sprnklr show photos
+* DONE Client sprnklr login
+* DONE Client sprnklr add account
+* DONE Client sprnklr show photos
 
 
 ** Access Handling
 * DONE real caching for refresh tokens
-* TODO Interface for different backend systems (just googs for now)
-* TODO cleanup sprnklr account def
+* DONE Interface for different backend systems (just googs for now)
+* DONE cleanup sprnklr account def

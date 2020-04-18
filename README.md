@@ -13,7 +13,7 @@ User configures sinks:
 
 MVP sync files accross google accounts
 
-An app is required to review files & adjust/add accounts and manage settings. - flutter looks like a good choice.
+An app is required to review files & adjust/add accounts and manage settings. - react native looks like a good choice.
 
 python.
 
