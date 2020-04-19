@@ -10,7 +10,7 @@ from globals import AccountType, AppLoggerName, merge_two_sorted_object_lists
 from accounts import Accounts
 
 from werkzeug.exceptions import HTTPException
-from flask import Flask, jsonify, redirect, session, url_for
+from flask import Flask, jsonify, redirect, session, url_for, request
 from flask_cors import CORS, cross_origin
 
 from authlib.integrations.flask_client import OAuth
@@ -98,8 +98,9 @@ def callback_google_handler():
     id_token_content = parse_id_token(result['id_token'])
     tpy_user_id = id_token_content['email']
     accounts = Accounts()
-    accounts.add_linked_account(sprnklr_id, tpy_user_id, AccountType.GOOGLE, 100.0, True)
-
+    linked_accounts = accounts.get_linked_accounts()
+    is_primary = True if len(linked_accounts) == 0 else False;
+    accounts.add_linked_account(sprnklr_id, tpy_user_id, AccountType.GOOGLE, 100.0, True, is_primary)
     auth_store = AuthStore()
     expiry_dttm = datetime.now() + timedelta(seconds=result['expires_in'])
     auth_store.persist_tokens(tpy_user_id, AccountType.GOOGLE, result['access_token'], expiry_dttm, result['refresh_token'])
@@ -144,6 +145,15 @@ def list_photos_handler():
         photos = merge_two_sorted_object_lists(photos, next_set, lambda photo: datetime.strptime(photo['mediaMetadata']['creationTime'], f"%Y-%m-%dT%H:%M:%SZ"))
 
     return jsonify(photos)
+
+@app.route('/api/set-primary-account', methods=['POST'])
+@requires_auth
+def set_is_primary():
+    tpy_user_id = request.json['tpy_user_id']
+    sprnklr_id = session['profile']['user_id']
+    logger.debug("Setting " + tpy_user_id + " as primary account for " + sprnklr_id)
+    Accounts().set_primary_account(sprnklr_id, tpy_user_id) 
+    return ('', 204)
 
 
 def parse_id_token(id_token:str) -> dict:

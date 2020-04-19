@@ -23,6 +23,15 @@ export default class Dashboard extends Component {
         this.setState({photos: photos_response.data})
     }
 
+    async setAccountAsPrimary(email) {
+        console.log("Setting " + email + " as primary.")
+        const set_response = await axios.post('/api/set-primary-account', {'tpy_user_id': email}, {headers: {'Content-Type': 'application/json'}})
+        if (set_response.status >= 200 && set_response.status < 300) {
+            const accounts_response = await axios.get('/api/list-accounts');
+            this.setState({linked_accounts: accounts_response.data})
+        }
+    }
+
     render() {
         return (
             <>
@@ -31,11 +40,17 @@ export default class Dashboard extends Component {
                 <h2>Linked Accounts</h2>
                 <ul style={{listStyle: "none"}}>
                     {this.state.linked_accounts.map((account) => (
-                        <li key={account[0]}>{account[0]}, {account[1]}</li>
+                        <li key={account[0]}>
+                            Email: {account[0]}, Type: {account[1]}, Primary: {account[3]}
+                            {/* only display set account primary if account is not currently primary.*/}
+                            { account[3] === 0 &&
+                                <button onClick={() => this.setAccountAsPrimary(account[0])}>Set as primary</button>
+                            }
+                        </li>
                     ))}
                 </ul>
 
-                <section>Photos</section>
+                <h2>Photos</h2>
                 <div style={{display: 'flex', flexWrap: 'wrap'}}>
                     {this.state.photos.map((photo) => (
                         <img src={photo.baseUrl} style={{margin: '10px', flex: '1 0 0', height: '200px', objectFit: 'contain'}} key={photo.id}></img>
