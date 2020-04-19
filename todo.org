@@ -4,17 +4,23 @@
 * DONE Setup test accounts with pictures
 * DONE List all photos in one account
 * DONE Login with sprnklr account (Auth0)
-* TODO Define sprnklr account to associate to a set of remote accounts
-* TODO Storage of multiple accounts
-* TODO Split client and server (web?)
+* DONE Define sprnklr account to associate to a set of remote accounts
+* DONE Storage of multiple accounts
+* DONE Split client and server (web?)
 
 ** server
 * DONE Server 
+* DONE List photos based on account type
+* TODO Define a primary account
+* TODO Ability to copy file from one account to another
+* TODO Implement data caps/limits
+* TODO Next page api / pagination
 
 ** client
 * DONE Client sprnklr login
 * DONE Client sprnklr add account
 * DONE Client sprnklr show photos
+* DONE Rudimentary display of photos (react)
 
 
 ** Access Handling

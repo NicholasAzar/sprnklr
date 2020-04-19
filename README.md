@@ -26,3 +26,11 @@ Implementation notes:
 Do we need a "sprnklr account"?)
 Yes - we do need a way to map an account on our side to a set of remote (third party) accounts.
 
+# Primary Account
+
+If you move files all over the place willy nilly the user is going to get annoyed.
+Instead, we should define a primary account so that all new photos stay there
+and we move photos from the tail end of the date range out to linked accounts.
+This way they have a decent sized buffer as to which photos stay editable and
+close by, and which ones get moved out.
+

@@ -11,6 +11,7 @@ from accounts import Accounts
 
 from werkzeug.exceptions import HTTPException
 from flask import Flask, jsonify, redirect, session, url_for
+from flask_cors import CORS, cross_origin
 
 from authlib.integrations.flask_client import OAuth
 from auth.auth_store import AuthStore
@@ -28,6 +29,7 @@ with open('config/auth_config.yaml', 'r') as auth_config_file:
 app = Flask(__name__)
 app.secret_key = 'A secret?'
 app.debug = True if env.get('LOGLEVEL') == 'DEBUG' else False
+CORS(app, resources=r'/api/*', supports_credentials=True)
 
 oauth = OAuth(app)
 
@@ -81,7 +83,11 @@ def callback_auth0_handler():
         'name': user_info['name'],
         'picture': user_info['picture']
     }
-    return jsonify(message="Login successful")
+    
+    redir_response = redirect('http://localhost:3006/dashboard')
+    redir_response.set_cookie('user_id', user_info['email'])
+    redir_response.set_cookie('acc_type', AccountType.AUTH0.value)
+    return redir_response
 
 @app.route('/callback-google')
 @requires_auth
@@ -97,7 +103,7 @@ def callback_google_handler():
     auth_store = AuthStore()
     expiry_dttm = datetime.now() + timedelta(seconds=result['expires_in'])
     auth_store.persist_tokens(tpy_user_id, AccountType.GOOGLE, result['access_token'], expiry_dttm, result['refresh_token'])
-    return jsonify(message="Login successful")
+    return redirect('http://localhost:3006/dashboard')
 
 
 @app.route('/login')
@@ -105,20 +111,20 @@ def login_handler():
     return auth0.authorize_redirect(redirect_uri=auth0_config['redirect_uri'])
 
 
-@app.route('/list-accounts')
+@app.route('/api/list-accounts')
 @requires_auth
 def list_accounts_handler():
     sprnklr_id = session['profile']['user_id']
     logger.debug("My user id: " + sprnklr_id)
     linked_accounts = Accounts().get_linked_accounts(sprnklr_id)
-    return jsonify(linked_accounts=linked_accounts)
+    return jsonify(linked_accounts)
 
 @app.route('/add-google-account')
 @requires_auth
 def add_account_handler():
     return google_auth.authorize_redirect(redirect_uri=google_config['redirect_uri'])
 
-@app.route('/list-photos')
+@app.route('/api/list-photos')
 @requires_auth
 def list_photos_handler():
     with open('config/photo_config.yaml', 'r') as photo_config_file:
@@ -137,7 +143,7 @@ def list_photos_handler():
         next_set = PhotoHandler(photo_config, access_token).list_photos_in_source()
         photos = merge_two_sorted_object_lists(photos, next_set, lambda photo: datetime.strptime(photo['mediaMetadata']['creationTime'], f"%Y-%m-%dT%H:%M:%SZ"))
 
-    return jsonify(photos=str(photos))
+    return jsonify(photos)
 
 
 def parse_id_token(id_token:str) -> dict:
