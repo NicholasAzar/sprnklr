@@ -4,6 +4,7 @@ from auth.auth_store import AuthStore
 
 logger = logging.getLogger(AppLoggerName)
 
+
 class Accounts(object):
 
     def __init__(self):

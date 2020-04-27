@@ -3,6 +3,7 @@ import logging
 import os
 import sqlite3
 from globals import AccountType, AppLoggerName
+import uuid
 
 logger = logging.getLogger(AppLoggerName)
 
@@ -35,6 +36,7 @@ class AuthStore(object):
                 sprnklr_account_type  text,
                 tpy_user_id         text,
                 tpy_account_type    text,
+                link_id         text,
                 alloc_percentage number,
                 is_primary          boolean,
                 active_flg          boolean,
@@ -43,6 +45,9 @@ class AuthStore(object):
             """)
             conn.execute("""
             create INDEX account_map_user ON account_map(sprnklr_id, sprnklr_account_type);
+            """)
+            conn.execute("""
+            create INDEX link_id_idx ON account_map(link_id);
             """)
     
     def get_tokens(self, user_id:str, account_type:AccountType) -> str:
@@ -75,12 +80,15 @@ class AuthStore(object):
 
     def add_linked_account(self, sprnklr_id:str, tpy_user_id:str, tpy_account_type:AccountType, alloc_percentage:float, active_flg:bool = True, is_primary:bool = False):
         with sqlite3.connect(AuthStore.db_filename) as conn:
+            generated_link_id = uuid.uuid4() # TODO(nzar@): Check if uuid already exists.
+
             query = """
-            insert into account_map(sprnklr_id, sprnklr_account_type, tpy_user_id, tpy_account_type, alloc_percentage, is_primary, active_flg) values (\"{}\", \"{}\", \"{}\", \"{}\", {}, {}, {});
+            insert into account_map(sprnklr_id, sprnklr_account_type, tpy_user_id, tpy_account_type, link_id, alloc_percentage, is_primary, active_flg) values (\"{}\", \"{}\", \"{}\", \"{}\", {}, {}, {});
             """.format(sprnklr_id, 
                 AccountType.SPRNKLR.value, 
                 tpy_user_id, 
                 tpy_account_type.value,
+                generated_link_id,
                 alloc_percentage, 
                 1 if is_primary else 0,
                 1 if active_flg else 0)
@@ -91,7 +99,7 @@ class AuthStore(object):
         with sqlite3.connect(AuthStore.db_filename) as conn:
             cursor = conn.cursor()
             query = """
-            select tpy_user_id, tpy_account_type, alloc_percentage, is_primary
+            select link_id, tpy_user_id, tpy_account_type, alloc_percentage, is_primary
             from account_map
             where sprnklr_id = \"{}\"
             and sprnklr_account_type = \"{}\"
@@ -100,19 +108,29 @@ class AuthStore(object):
             logger.debug("Running query: " + query)
             cursor.execute(query)
             results = cursor.fetchall()
+            accounts = []
             if results is None or len(results) == 0:
-                return []
-            return results
+                return accounts
+            else:
+                for row in results:
+                    accounts.append({
+                        'link_id': row[0],
+                        'tpy_user_id': row[1],
+                        'tpy_account_type': row[2],
+                        'alloc_percentage': row[3],
+                        'is_primary': row[4]
+                    })
+            return accounts
 
-    def set_is_primary(self, sprnklr_id:str, tpy_user_id:str):
+    def set_is_primary(self, sprnklr_id:str, link_id:str):
         with sqlite3.connect(AuthStore.db_filename) as conn:
             conn.execute("""BEGIN TRANSACTION""")
             conn.execute("""
-            update account_map set is_primary = 0 where sprnklr_id = \"{}\" and tpy_user_id != \"{}\"
-            """.format(sprnklr_id, tpy_user_id))
+            update account_map set is_primary = 0 where sprnklr_id = \"{}\" 
+            """.format(sprnklr_id))
             conn.execute("""
-            update account_map set is_primary = 1 where sprnklr_id = \"{}\" and tpy_user_id = \"{}\"
-            """.format(sprnklr_id, tpy_user_id))
+            update account_map set is_primary = 1 where link_id = \"{}\"
+            """.format(link_id))
             conn.commit()
 
 

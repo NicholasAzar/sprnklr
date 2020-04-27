@@ -40,11 +40,11 @@ export default class Dashboard extends Component {
                 <h2>Linked Accounts</h2>
                 <ul style={{listStyle: "none"}}>
                     {this.state.linked_accounts.map((account) => (
-                        <li key={account[0]}>
-                            Email: {account[0]}, Type: {account[1]}, Primary: {account[3]}
+                        <li key={account['tpy_user_id']}>
+                            Email: {account['tpy_user_id']}, Type: {account['tpy_account_type']}, Primary: {account['is_primary']}, Link ID: {account['link_id']}
                             {/* only display set account primary if account is not currently primary.*/}
                             { account[3] === 0 &&
-                                <button onClick={() => this.setAccountAsPrimary(account[0])}>Set as primary</button>
+                                <button onClick={() => this.setAccountAsPrimary(account['link_id'])}>Set as primary</button>
                             }
                         </li>
                     ))}

@@ -135,8 +135,8 @@ def list_photos_handler():
 
     photos = []
     for account in linked_accounts:
-        linked_user_id = account[0]
-        linked_acc_type = AccountType(account[1])
+        linked_user_id = account['tpy_user_id']
+        linked_acc_type = AccountType(account['tpy_account_type'])
 
         authr = AuthrFactory.get_authr(linked_acc_type)
         access_token = authr.get_access_token(linked_user_id)
@@ -154,6 +154,13 @@ def set_is_primary():
     logger.debug("Setting " + tpy_user_id + " as primary account for " + sprnklr_id)
     Accounts().set_primary_account(sprnklr_id, tpy_user_id) 
     return ('', 204)
+
+@app.route('/api/copy-photo', methods=['POST'])
+@requires_auth
+# TODO(nzar@) - Blocked by #7
+def copy_photo():
+    source_tpy_user_id = request.json['source_tpy_user_id']
+    dest_tpy_user_id = request.json['dest_tpy_user_id']
 
 
 def parse_id_token(id_token:str) -> dict:
