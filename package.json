@@ -1,0 +1,28 @@
+{
+  "name": "sprnklr",
+  "version": "1.0.0",
+  "description": "Sprinkle files from one source to multiple different sources.",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "cz-conventional-changelog": "^3.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicholasAzar/sprnklr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NicholasAzar/sprnklr/issues"
+  },
+  "homepage": "https://github.com/NicholasAzar/sprnklr#readme",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
