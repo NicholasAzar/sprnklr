@@ -157,10 +157,10 @@ def set_is_primary():
 
 @app.route('/api/copy-photo', methods=['POST'])
 @requires_auth
-# TODO(nzar@) - Blocked by #7
 def copy_photo():
-    source_tpy_user_id = request.json['source_tpy_user_id']
-    dest_tpy_user_id = request.json['dest_tpy_user_id']
+    source_link_id = request.json['source_link_id']
+    dest_link_id = request.json['dest_link_id']
+
 
 
 def parse_id_token(id_token:str) -> dict:

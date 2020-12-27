@@ -19,6 +19,10 @@ class Accounts(object):
         logger.debug("Got linked accounts: " + str(linked_accounts))
         return linked_accounts
     
+    def get_account_by_link_id(self, link_id:str):
+        return self.store.get_account_by_link_id(link_id)
+
+    
     def set_primary_account(self, sprnklr_id:str, tpy_user_id:str):
         self.store.set_is_primary(sprnklr_id, tpy_user_id)
     

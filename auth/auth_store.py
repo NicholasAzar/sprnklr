@@ -121,6 +121,26 @@ class AuthStore(object):
                         'is_primary': row[4]
                     })
             return accounts
+    
+    def get_account_by_link_id(self, link_id:str):
+        with sqlite3.connect(AuthStore.db_filename) as conn:
+            cursor = conn.cursor()
+            query = """
+            select tpy_user_id, tpy_account_type, alloc_percentage, is_primary
+            from account_map
+            where link_id = \"{}\"
+            """.format() 
+            logger.debug("Running query: " + query)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            if results is None or len(results) == 0:
+                return None
+            return {
+                'tpy_user_id': results[0][0],
+                'tpy_account_type': AccountType(results[0][1]),
+                'alloc_percentage': results[0][2],
+                'is_primary': results[0][3]
+            }
 
     def set_is_primary(self, sprnklr_id:str, link_id:str):
         with sqlite3.connect(AuthStore.db_filename) as conn:
