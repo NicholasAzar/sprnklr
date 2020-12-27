@@ -1,6 +1,0 @@
-pyyaml
-requests
-flask
-authlib
-jsonify
-flask-cors
