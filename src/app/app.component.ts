@@ -1,4 +1,9 @@
 import { Component } from '@angular/core';
+import {AuthService} from './auth/auth.service';
+
+const Store = (<any>window).require('electron-store');
+
+const store = new Store();
 
 @Component({
   selector: 'app-root',
@@ -7,4 +12,8 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'sprnklr';
+
+  constructor(private authService: AuthService) {
+    console.log("accessToken: ", store.get('accessToken'));
+  }
 }

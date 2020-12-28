@@ -1,6 +1,8 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import { AuthFlow, AuthStateEmitter } from './flow';
+
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
@@ -21,7 +23,7 @@ function createWindow(): BrowserWindow {
       nodeIntegration: true,
       allowRunningInsecureContent: (serve) ? true : false,
       contextIsolation: false,  // false if you want to run 2e2 test with Spectron
-      enableRemoteModule : true // true if you want to run 2e2 test  with Spectron or use remote module in renderer context (ie. Angular)
+      enableRemoteModule : true
     },
   });
 
@@ -36,7 +38,7 @@ function createWindow(): BrowserWindow {
 
   } else {
     win.loadURL(url.format({
-      pathname: path.join(__dirname, 'dist/index.html'),
+      pathname: path.join(__dirname, '../dist/index.html'),
       protocol: 'file:',
       slashes: true
     }));
@@ -58,7 +60,8 @@ try {
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
-  app.on('ready', () => setTimeout(createWindow, 400));
+  // app.on('ready', () => setTimeout(createWindow, 400));
+  app.on('ready', signIn);
 
   // Quit when all windows are closed.
   app.on('window-all-closed', () => {
@@ -80,4 +83,16 @@ try {
 } catch (e) {
   // Catch Error
   // throw e;
+}
+
+const authFlow = new AuthFlow();
+
+authFlow.authStateEmitter.on(
+    AuthStateEmitter.ON_TOKEN_RESPONSE, createWindow
+);
+
+async function signIn() {
+  if (!authFlow.loggedIn()) {
+    await authFlow.startup();
+  }
 }
