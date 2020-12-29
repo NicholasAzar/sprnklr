@@ -5,7 +5,6 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
     "target": "es5",
     "types": [
       "node"
@@ -18,8 +17,7 @@
     ]
   },
   "files": [
-    "electron/main.ts",
-    "electron/flow.ts"
+    "main.ts"
   ],
   "exclude": [
     "node_modules",

@@ -7,7 +7,7 @@ import { NodeRequestor } from "@nicholasazar/appauth/built/node_support/node_req
 import { GRANT_TYPE_AUTHORIZATION_CODE, GRANT_TYPE_REFRESH_TOKEN, TokenRequest } from "@nicholasazar/appauth/built/token_request";
 import { BaseTokenRequestHandler, TokenRequestHandler } from "@nicholasazar/appauth/built/token_request_handler";
 import { TokenResponse } from "@nicholasazar/appauth/built/token_response";
-import EventEmitter = require("events");
+const EventEmitter = require("events");
 import { StringMap } from "@nicholasazar/appauth/built/types";
 const Store = require('electron-store');
 
