@@ -17,8 +17,8 @@ export class ClientStoreService {
     }
   }
 
-  get(key:string):string|null|unknown {
-    return this.store.get(key);
+  get(key:string):string|null {
+    return this.store.get(key) as string;
   }
 
   set(key:string, value:string):void {
