@@ -1,8 +1,10 @@
+import { Target } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { ReplaySubject, Observable } from 'rxjs';
 
 import { ElectronService } from '../electron/electron.service';
 import { SourceAccount } from '../sources/sources.service';
+import { TargetAccount } from '../targets/targets.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +14,21 @@ export class AppStoreService {
   private sourceAccounts:SourceAccount[] = [];
   private sourceAccountsSubject = new ReplaySubject<SourceAccount[]>();
 
+  private targetAccounts:TargetAccount[] = [];
+  private targetAccountsSubject = new ReplaySubject<TargetAccount[]>();
+
   constructor(private clientStore:ClientStoreService) {
     const sourceAccounts = this.clientStore.get('sourceAccounts');
+    const targetAccounts = this.clientStore.get('targetAccounts');
+
     if (sourceAccounts && sourceAccounts.length > 0) {
       this.sourceAccounts = sourceAccounts;
       this.sourceAccountsSubject.next(this.sourceAccounts);
+    }
+
+    if (targetAccounts && targetAccounts.length > 0) {
+      this.targetAccounts = targetAccounts;
+      this.targetAccountsSubject.next(this.targetAccounts);
     }
   }
 
@@ -28,6 +40,10 @@ export class AppStoreService {
 
   getSourceAccounts():Observable<SourceAccount[]> {
     return this.sourceAccountsSubject;
+  }
+
+  getTargetAccounts():Observable<TargetAccount[]> {
+    return this.targetAccountsSubject;
   }
 
   replaceSourceAccount(sourceAccount:SourceAccount) {
@@ -54,6 +70,12 @@ export class AppStoreService {
     this.sourceAccountsSubject.next(this.sourceAccounts);
   }
 
+  addTargetAccount(targetAccount:TargetAccount) {
+    this.targetAccounts.push(targetAccount);
+    this.persistTargetAccounts();
+    this.targetAccountsSubject.next(this.targetAccounts);
+  }
+
   removeSourceAccount(email:string) {
     this.sourceAccounts = this.sourceAccounts.filter((account) => {
       return account.email !== email;
@@ -63,6 +85,10 @@ export class AppStoreService {
 
   private persistSourceAccounts() {
     this.clientStore.set('sourceAccounts', this.sourceAccounts);
+  }
+
+  private persistTargetAccounts() {
+    this.clientStore.set('targetAccounts', this.targetAccounts);
   }
 }
 

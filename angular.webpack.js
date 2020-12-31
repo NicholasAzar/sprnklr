@@ -1,8 +1,6 @@
 module.exports = (config, options) => {
   config.target = 'electron-renderer';
 
-
-
   if (options.fileReplacements) {
       for(let fileReplacement of options.fileReplacements) {
           if (fileReplacement.replace !== 'src/environments/environment.ts') {

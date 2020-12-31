@@ -16,6 +16,7 @@ export class SourcesComponent {
   }
 
   addAccount() {
+    // TODO(nzar): Showing waiting dialog
     this.sourcesService.addAccount();
   }
 }

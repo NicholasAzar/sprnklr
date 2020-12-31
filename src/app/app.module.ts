@@ -10,12 +10,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { SourcesComponent } from './sources/sources.component';
 import {MatCardModule} from '@angular/material/card';
+import {TargetsComponent} from './targets/targets.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    SourcesComponent
+    SourcesComponent,
+    TargetsComponent
   ],
   imports: [
     BrowserModule,
