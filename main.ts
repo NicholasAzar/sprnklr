@@ -1,7 +1,7 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import { AuthFlow, AuthStateEmitter } from './flow';
+// import { AuthFlow, AuthStateEmitter } from './flow';
 
 
 let win: BrowserWindow = null;
@@ -60,8 +60,8 @@ try {
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
-  // app.on('ready', () => setTimeout(createWindow, 400));
-  app.on('ready', signIn);
+  app.on('ready', () => setTimeout(createWindow, 400));
+  // app.on('ready', signIn);
 
   // Quit when all windows are closed.
   app.on('window-all-closed', () => {
@@ -85,14 +85,14 @@ try {
   // throw e;
 }
 
-const authFlow = new AuthFlow();
+// const authFlow = new AuthFlow();
 
-authFlow.authStateEmitter.on(
-    AuthStateEmitter.ON_TOKEN_RESPONSE, createWindow
-);
+// authFlow.authStateEmitter.on(
+//     AuthStateEmitter.ON_TOKEN_RESPONSE, createWindow
+// );
 
-async function signIn() {
-  if (!authFlow.loggedIn()) {
-    await authFlow.startup();
-  }
-}
+// async function signIn() {
+//   if (!authFlow.loggedIn()) {
+//     await authFlow.startup();
+//   }
+// }

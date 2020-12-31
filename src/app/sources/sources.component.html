@@ -1,1 +1,19 @@
-Sources!
+<div class="container">
+  <div class="title-bar">
+    <h1>Source Accounts</h1>
+    <button mat-mini-fab color="accent" aria-label="" (click)="addAccount()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+  <div class="accounts-list">
+    <mat-card *ngFor="let acc of sourceAccounts | async">
+      <mat-card-header>
+        <mat-card-title>{{acc.email}}</mat-card-title>
+        <mat-card-subtitle>Last sync: yesterday or something</mat-card-subtitle>
+        <!-- <img mat-card-avatar> -->
+      </mat-card-header>
+    </mat-card>
+  </div>
+</div>
+
+

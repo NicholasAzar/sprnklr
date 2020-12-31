@@ -9,6 +9,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { SourcesComponent } from './sources/sources.component';
+import {MatCardModule} from '@angular/material/card';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { SourcesComponent } from './sources/sources.component';
     BrowserAnimationsModule,
     MatToolbarModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { SourceAccount, SourcesService } from './sources.service';
 
 @Component({
   selector: 'sources',
@@ -7,7 +9,14 @@ import { Component } from '@angular/core';
 })
 export class SourcesComponent {
 
-  constructor() {
+  sourceAccounts:Observable<SourceAccount[]>;
+
+  constructor(private sourcesService:SourcesService) {
+    this.sourceAccounts = this.sourcesService.sources;
   }
 
+  addAccount() {
+    this.sourcesService.addAccount();
+  }
 }
+
