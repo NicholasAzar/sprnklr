@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService } from '../auth/auth.service';
+import { AuthService, Account } from '../auth/auth.service';
 import { AppStoreService } from '../client-store/client-store.service';
 
 @Injectable({
@@ -17,7 +17,19 @@ export class SourcesService {
   }
 
   async addAccount() {
-    await this.authService.startLogin();
+    await this.authService.login()
+    .then((response) => console.log("FINISHED LOGIN WOOO ", response))
+    .then((account:Account|void) => {
+      if (!account) return;
+      const sourceAccount = {
+        email: account.email,
+        refreshToken: account.refreshToken,
+        accessToken: account.accessToken,
+        lastSync: null,
+        active: true
+      };
+      this.appStore.addSourceAccount(sourceAccount);
+    });
   }
 }
 

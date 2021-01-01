@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthorizationRequest } from "@nicholasazar/appauth/built/authorization_request";
-import { AuthorizationNotifier, AuthorizationRequestHandler } from "@nicholasazar/appauth/built/authorization_request_handler";
+import { AuthorizationNotifier, AuthorizationRequestHandler, AuthorizationRequestResponse } from "@nicholasazar/appauth/built/authorization_request_handler";
 import { AuthorizationServiceConfiguration } from "@nicholasazar/appauth/built/authorization_service_configuration";
 import { NodeCrypto } from '@nicholasazar/appauth/built/node_support/';
 import { NodeBasedHandler } from "@nicholasazar/appauth/built/node_support/node_request_handler";
@@ -69,7 +69,7 @@ export class AuthService {
     });
   }
 
-  async startLogin(username?: string):Promise<void> {
+  async login(username?: string):Promise<Account> {
     if (!this.configuration) {
       await this.fetchServiceConfiguration();
     }
@@ -94,13 +94,24 @@ export class AuthService {
     return this.authorizationHandler.performAuthorizationRequest(
       this.configuration,
       request
-    );
+    ).then((requestResponse) => this.continueLogin(requestResponse));
   }
 
-  private getTokens(code: string, codeVerifier: string|undefined): Promise<void> {
+  private continueLogin(requestResponse:AuthorizationRequestResponse): Promise<Account> {
+    log("Authorization request complete ", requestResponse);
+    if (requestResponse?.response) {
+      let codeVerifier: string | undefined;
+      if(requestResponse.request?.internal?.code_verifier) {
+        codeVerifier = requestResponse.request.internal.code_verifier;
+      }
+
+      return this.getTokens(requestResponse.response.code, codeVerifier);
+    }
+  }
+
+  private async getTokens(code: string, codeVerifier: string|undefined): Promise<Account> {
     if (!this.configuration) {
-      log("Unknown service configuration");
-      return Promise.resolve();
+      await this.fetchServiceConfiguration();
     }
 
     const extras: StringMap = {};
@@ -126,13 +137,11 @@ export class AuthService {
         log('Refresh token response: ', response);
         const decoded = jwt_decode(response.idToken);
         console.log('Decoded: ', decoded);
-        this.appStore.addSourceAccount({
+        return {
           email: decoded['email'],
           refreshToken: response.refreshToken,
-          accessToken: response.accessToken,
-          active:true,
-          lastSync: null
-        })
+          accessToken: response.accessToken
+        };
       });
   }
 
@@ -159,7 +168,7 @@ export class AuthService {
   removeAccount() {
   }
 
-  refreshTokens(email:string): Promise<void> {
+  refreshTokens(email:string): Promise<Account> {
     if (!this.configuration) {
       log("Unknown service configuration");
       return Promise.reject("Unknown service configuration");
@@ -191,13 +200,25 @@ export class AuthService {
       .then(response => {
         const decoded = jwt_decode(response.idToken);
         console.log('Decoded: ', decoded);
-        this.appStore.replaceSourceAccount({
+        return {
           email: decoded['email'],
           refreshToken: response.refreshToken,
-          accessToken: response.accessToken,
-          active:true,
-          lastSync: null
-        });
+          accessToken: response.accessToken
+        };
+        // this.appStore.replaceSourceAccount({
+        //   email: decoded['email'],
+        //   refreshToken: response.refreshToken,
+        //   accessToken: response.accessToken,
+        //   active:true,
+        //   lastSync: null
+        // });
       });
   }
+}
+
+
+export interface Account {
+  email:string;
+  refreshToken:string;
+  accessToken:string;
 }

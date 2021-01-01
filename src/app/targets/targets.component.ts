@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TargetAccount, TargetsService } from './targets.service';
+import { AddTargetComponent } from './add-target/add-target.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'targets',
@@ -11,12 +13,19 @@ export class TargetsComponent {
 
   targetAccounts:Observable<TargetAccount[]>;
 
-  constructor(private targetService:TargetsService) {
+  constructor(private targetService:TargetsService, private dialog: MatDialog) {
     this.targetAccounts = this.targetService.targets;
   }
 
-  addAccount() {
-    console.log("IMPLEMENT ME");
+  openAddAccountDialog() {
+    const dialogRef = this.dialog.open(AddTargetComponent, {
+      width: '500px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed: ', result);
+    });
   }
 }
 

@@ -1,15 +1,26 @@
 <div class="container">
   <div class="title-bar">
     <h1>Target Accounts</h1>
-    <button mat-mini-fab color="accent" aria-label="" (click)="addAccount()">
+    <button mat-mini-fab color="accent" aria-label="" (click)="openAddAccountDialog()">
       <mat-icon>add</mat-icon>
     </button>
   </div>
   <div class="accounts-list">
     <mat-card *ngFor="let acc of targetAccounts | async">
-      <mat-card-header>
-        <mat-card-title>Path or something</mat-card-title>
-        <mat-card-subtitle>Last sync: yesterday or something</mat-card-subtitle>
+      <!-- corrupt data from numbered enum, remove this. -->
+      <mat-card-header *ngIf="acc.accountType === 1">
+        <mat-card-title>{{acc.account.email}}</mat-card-title>
+        <mat-card-subtitle>Last sync: {{acc.lastSync}}, Active: {{acc.active}}</mat-card-subtitle>
+        <!-- <img mat-card-avatar> -->
+      </mat-card-header>
+      <mat-card-header *ngIf="acc.accountType === 'google'">
+        <mat-card-title>{{acc.account.email}}</mat-card-title>
+        <mat-card-subtitle>Last sync: {{acc.lastSync}}, Active: {{acc.active}}</mat-card-subtitle>
+        <!-- <img mat-card-avatar> -->
+      </mat-card-header>
+      <mat-card-header *ngIf="acc.accountType === 'path'">
+        <mat-card-title>{{acc.account.path}}</mat-card-title>
+        <mat-card-subtitle>Last sync: {{acc.lastSync}}, Active: {{acc.active}}</mat-card-subtitle>
         <!-- <img mat-card-avatar> -->
       </mat-card-header>
     </mat-card>

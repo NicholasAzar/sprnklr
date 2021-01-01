@@ -1,0 +1,69 @@
+<h1 mat-dialog-title>Add New Target</h1>
+<div mat-dialog-content>
+  <mat-horizontal-stepper [linear]="true" #stepper>
+    <mat-step [stepControl]="targetTypeFormGroup" label="Type">
+      <form [formGroup]="targetTypeFormGroup">
+        <mat-form-field appearance="fill">
+          <mat-label>Select an option</mat-label>
+          <mat-select formControlName="targetTypeCtrl" required>
+            <mat-option value="path">System Path</mat-option>
+            <mat-option value="google">Google Account</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="targetTypeFormGroup.get('targetTypeCtrl')?.value === 'path' ? pathDetailsFormGroup : googleDetailsFormGroup" label="Details">
+      <div *ngIf="targetTypeFormGroup.get('targetTypeCtrl')?.value === 'path'; else googleDetails">
+        <!-- Hullo? -->
+        <form [formGroup]="pathDetailsFormGroup" >
+          <button mat-raised-button color="primary" (click)="selectPath()">Select path</button>
+          <mat-form-field>
+            <mat-label>Selected path:</mat-label>
+            <input matInput formControlName="pathCtrl" required readonly>
+          </mat-form-field>
+
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+      </div>
+      <ng-template #googleDetails>
+        <h1>Hi google details</h1>
+        <form [formGroup]="googleDetailsFormGroup" >
+          <button mat-raised-button color="primary" (click)="addGoogleAccount()">Add account</button>
+          <mat-form-field>
+            <mat-label>Selected email:</mat-label>
+            <input matInput formControlName="emailCtrl" required readonly>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput formControlName="accessTokenCtrl" required hidden>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput formControlName="refreshTokenCtrl" required hidden>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+      </ng-template>
+
+    </mat-step>
+    <mat-step label="Done">
+      <p>You are now done.</p>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
+</div>
+<!-- <div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button [mat-dialog-close]="data.animal" cdkFocusInitial>Ok</button>
+</div> -->
