@@ -13,7 +13,6 @@
 
 ### Features
 
-- [target] add target paths
 - [source] iterate through photos
 - [source] store account photos details (metadata)
 - [target] download photo to path

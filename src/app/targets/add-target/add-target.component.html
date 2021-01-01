@@ -16,8 +16,8 @@
       </form>
     </mat-step>
 
-    <mat-step [stepControl]="targetTypeFormGroup.get('targetTypeCtrl')?.value === 'path' ? pathDetailsFormGroup : googleDetailsFormGroup" label="Details">
-      <div *ngIf="targetTypeFormGroup.get('targetTypeCtrl')?.value === 'path'; else googleDetails">
+    <mat-step [stepControl]="targetType === 'path' ? pathDetailsFormGroup : googleDetailsFormGroup" label="Details">
+      <div *ngIf="targetType === 'path'; else googleDetails">
         <!-- Hullo? -->
         <form [formGroup]="pathDetailsFormGroup" >
           <button mat-raised-button color="primary" (click)="selectPath()">Select path</button>
@@ -33,17 +33,16 @@
         </form>
       </div>
       <ng-template #googleDetails>
-        <h1>Hi google details</h1>
+        <button mat-raised-button color="primary" (click)="getGoogleAccount()">Add account</button>
         <form [formGroup]="googleDetailsFormGroup" >
-          <button mat-raised-button color="primary" (click)="addGoogleAccount()">Add account</button>
           <mat-form-field>
             <mat-label>Selected email:</mat-label>
             <input matInput formControlName="emailCtrl" required readonly>
           </mat-form-field>
-          <mat-form-field>
+          <mat-form-field hidden style="display: none;">
             <input matInput formControlName="accessTokenCtrl" required hidden>
           </mat-form-field>
-          <mat-form-field>
+          <mat-form-field hidden style="display: none;">
             <input matInput formControlName="refreshTokenCtrl" required hidden>
           </mat-form-field>
           <div>
@@ -54,11 +53,24 @@
       </ng-template>
 
     </mat-step>
-    <mat-step label="Done">
-      <p>You are now done.</p>
+    <mat-step label="Apply">
+      <h2>Click Apply to persist the changes</h2>
+
+      <span class="apply-label">Account Type:</span>
+      <span class="apply-value">{{targetType === 'path' ? 'System Path' : 'Google Account'}}</span>
+
+      <span class="apply-label">Details:</span>
+      <span class="apply-value" *ngIf="targetType === 'path'">
+        Path: {{pathDetailsFormGroup.get('pathCtrl').value}}
+      </span>
+      <span class="apply-value" *ngIf="targetType === 'google'">
+        Email: {{googleDetailsFormGroup.get('emailCtrl').value}}
+      </span>
+
       <div>
         <button mat-button matStepperPrevious>Back</button>
-        <button mat-button (click)="stepper.reset()">Reset</button>
+        <button mat-button color="warn" (click)="stepper.reset()">Reset</button>
+        <button mat-button color="primary" (click)="applyChanges()">Apply</button>
       </div>
     </mat-step>
   </mat-horizontal-stepper>

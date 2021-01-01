@@ -13,6 +13,7 @@ export class AddTargetComponent {
   targetTypeFormGroup: FormGroup;
   pathDetailsFormGroup: FormGroup;
   googleDetailsFormGroup: FormGroup;
+  private googleTargetAccount:TargetAccount<GoogleTargetAccount>;
 
   constructor(public dialogRef: MatDialogRef<AddTargetComponent>,
     @Inject(MAT_DIALOG_DATA) public data: AddTargetData,
@@ -35,6 +36,10 @@ export class AddTargetComponent {
     console.log("pathDetailsFormGroup", this.pathDetailsFormGroup);
   }
 
+  get targetType() {
+    return this.targetTypeFormGroup.controls?.targetTypeCtrl?.value;
+  }
+
   selectPath() {
     const result = remote.dialog.showOpenDialogSync(null, {properties: ['openDirectory']});
     console.log('result: ', result);
@@ -45,18 +50,28 @@ export class AddTargetComponent {
     }
   }
 
-  async addGoogleAccount() {
+  async getGoogleAccount() {
     // Trigger add account
-    await this.targetsService.addGoogleAccount().then((targetAccount:TargetAccount<GoogleTargetAccount>) => {
+    await this.targetsService.getGoogleAccount().then((targetAccount:TargetAccount<GoogleTargetAccount>) => {
+      this.googleTargetAccount = targetAccount;
       // apply to form
       this.googleDetailsFormGroup.controls.emailCtrl.setValue(targetAccount.account.email);
       this.googleDetailsFormGroup.controls.accessTokenCtrl.setValue(targetAccount.account.accessToken);
       this.googleDetailsFormGroup.controls.refreshTokenCtrl.setValue(targetAccount.account.refreshToken);
     });
+  }
 
+  applyChanges() {
+    if (this.targetType === 'path') {
+      this.targetsService.persistPath(this.pathDetailsFormGroup.controls.pathCtrl.value);
+    } else if (this.targetType === 'google') {
+      this.targetsService.persistGoogleAccount(this.googleTargetAccount);
+    }
+    this.dialogRef.close();
+  }
 
-
-
+  resetForms() {
+    
   }
 }
 

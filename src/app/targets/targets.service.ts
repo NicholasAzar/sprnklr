@@ -14,24 +14,37 @@ export class TargetsService {
     return this.appStore.getTargetAccounts();
   }
 
-  addGoogleAccount() {
-    return this.authService.login()
-      .then((account:Account|void) => {
-        if (!account) return;
-        const targetAccount = {
-          accountType: TargetAccountType.GOOGLE,
-          account: {
-            email: account.email,
-            refreshToken: account.refreshToken,
-            accessToken: account.accessToken,
-          },
-          lastSync: null,
-          active: true
-        } as TargetAccount<GoogleTargetAccount>;
-        // TODO(nzar): do i already have this account added?
-        this.appStore.addTargetAccount(targetAccount);
-        return targetAccount;
-      });
+  getGoogleAccount():Promise<TargetAccount<GoogleTargetAccount>|void> {
+    return this.authService.login().then((account) => {
+      if (!account) return;
+      // TODO(nzar): do i already have this account added?
+      return {
+        accountType: TargetAccountType.GOOGLE,
+        account: {
+          email: account.email,
+          refreshToken: account.refreshToken,
+          accessToken: account.accessToken,
+        },
+        lastSync: null,
+        active: true
+      } as TargetAccount<GoogleTargetAccount>;
+    });
+  }
+
+  persistGoogleAccount(targetAccount:TargetAccount<GoogleTargetAccount>) {
+    this.appStore.addTargetAccount(targetAccount);
+    return targetAccount;
+  }
+
+  persistPath(path:string) {
+    this.appStore.addTargetAccount({
+      accountType: TargetAccountType.PATH,
+      account: {
+        path: path
+      },
+      lastSync: null,
+      active: true
+    } as TargetAccount<PathTargetAccount>);
   }
 
   clearAllTargets() {
