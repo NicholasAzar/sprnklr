@@ -27,5 +27,9 @@ export class TargetsComponent {
       console.log('The dialog was closed: ', result);
     });
   }
+
+  clearAllTargets() {
+    this.targetService.clearAllTargets();
+  }
 }
 

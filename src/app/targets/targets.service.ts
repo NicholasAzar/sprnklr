@@ -33,6 +33,10 @@ export class TargetsService {
         return targetAccount;
       });
   }
+
+  clearAllTargets() {
+    this.appStore.clearAllTargetAccounts();
+  }
 }
 
 export enum TargetAccountType {

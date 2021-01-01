@@ -76,6 +76,12 @@ export class AppStoreService {
     this.targetAccountsSubject.next(this.targetAccounts);
   }
 
+  clearAllTargetAccounts() {
+    this.targetAccounts = [];
+    this.persistTargetAccounts();
+    this.targetAccountsSubject.next(this.targetAccounts);
+  }
+
   removeSourceAccount(email:string) {
     this.sourceAccounts = this.sourceAccounts.filter((account) => {
       return account.email !== email;
