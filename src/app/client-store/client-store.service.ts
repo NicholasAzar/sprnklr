@@ -70,6 +70,12 @@ export class AppStoreService {
     this.sourceAccountsSubject.next(this.sourceAccounts);
   }
 
+  clearAllSourceAccounts() {
+    this.sourceAccounts = [];
+    this.persistSourceAccounts();
+    this.sourceAccountsSubject.next(this.sourceAccounts);
+  }
+
   addTargetAccount(targetAccount:TargetAccount) {
     this.targetAccounts.push(targetAccount);
     this.persistTargetAccounts();

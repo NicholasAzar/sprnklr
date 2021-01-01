@@ -31,6 +31,10 @@ export class SourcesService {
       this.appStore.addSourceAccount(sourceAccount);
     });
   }
+
+  clearAllSources() {
+    this.appStore.clearAllSourceAccounts();
+  }
 }
 
 export interface SourceAccount {

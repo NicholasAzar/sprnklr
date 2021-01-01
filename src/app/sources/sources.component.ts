@@ -19,5 +19,9 @@ export class SourcesComponent {
     // TODO(nzar): Showing waiting dialog
     this.sourcesService.addAccount();
   }
+
+  clearAllSources() {
+    this.sourcesService.clearAllSources();
+  }
 }
 
