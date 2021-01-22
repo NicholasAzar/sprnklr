@@ -69,7 +69,7 @@ class GoogleAuthr(Authr):
         logger.debug("Sending request to " + self.config['token_url'] + " with data: " + str(request_body))
         response = requests.post(url=self.config['token_url'], data=request_body)
         if response.status_code == 200:
-            logger.debug("Get new token success: " + response.text)
+            logger.debug("Get new token success.")
             json_data = json.loads(response.text)
             expiry_dttm = datetime.now() + timedelta(seconds=json_data['expires_in'])
             user_id = self._get_field_from_id_token(json_data['id_token'], 'email')
