@@ -53,7 +53,7 @@ class Auth0Authr(Authr):
         logger.debug('Sending request to: ' + self.config['token_url'])
         response = requests.post(url = self.config['token_url'], data = request_body)
         if response.status_code == 200:
-            logger.debug('Auth0 success token response: ' + response.text)
+            logger.debug('Auth0 success token response')
             json_data = json.loads(response.text)
             expiry_dttm = datetime.now() + timedelta(seconds=json_data['expires_in'])
             user_id = self._get_field_from_id_token(json_data['id_token'], 'email')
