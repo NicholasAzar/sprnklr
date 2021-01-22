@@ -60,6 +60,6 @@ class Authr(object):
         id_token_body = id_token.split('.')[1]
         id_token_body_padded = id_token_body + "=" * (-len(id_token_body) % 4)
         decoded_body = base64.standard_b64decode(id_token_body_padded)
-        logger.debug("Decoded id token body: " + str(decoded_body))
+        logger.debug("Decoded id token.")
         json_body = json.loads(decoded_body)
         return json_body[field_name]
